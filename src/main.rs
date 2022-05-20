@@ -1,6 +1,7 @@
 use std::env; // for taking in args (only works on unicode)
 use std::fs; // for manipulating files
 use std::process; // for error handling
+use std::error::Error; // for more error handling
 
 fn main() {
     // taking in the arguments
@@ -11,11 +12,21 @@ fn main() {
         process::exit(1);
     });
 
-    let content = fs::read_to_string(config.filename)
-        .expect("Couldn't read the file properly");
+    if let Err(e) = run(config) {
+        println!("Application error: {}", e);
+
+        process::exit(1);
+    }
 }
 
-// I like to keep my class functions without whitespace
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.filename)?;
+
+    println!("With text:\n{}", contents);
+
+    Ok(())
+}
+
 struct Config {
     query: String,
     filename: String,
